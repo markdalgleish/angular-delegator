@@ -16,20 +16,20 @@
           return [].slice.call(args, 1);
         },
 
-        getMethods = function(selector) {
+        getFunctions = function(selector) {
           var parts = selector.split('.'),
             name = parts[0],
             serviceInstances = collections[name].map($injector.get),
             propertyNames = parts.slice(1),
-            methods = serviceInstances;
+            fns = serviceInstances;
 
           propertyNames.forEach(function(propertyName) {
-            methods = methods.map(function(fn) {
+            fns = fns.map(function(fn) {
               return fn[propertyName];
             });
           });
 
-          return methods;
+          return fns;
         },
 
         extend = function(acc, obj) {
@@ -39,41 +39,43 @@
             }
           }
           return acc;
+        },
+
+        mapSelector = function(selector) {
+          var args = getArgs(arguments),
+            fns = getFunctions(selector);
+
+          return map(fns, function(fn) {
+            return fn.apply(null, args);
+          });
+        },
+
+        mergeSelector = function() {
+          return mapSelector.apply(null, arguments).reduce(extend, {});
+        },
+
+        someSelector = function(selector, args, value) {
+          return mapSelector.apply(null, [selector].concat(args)).some(function(result) { return result === value; });
+        },
+
+        anySelector = function(selector) {
+          return someSelector(selector, getArgs(arguments), true);
+        },
+
+        allSelector = function(selector) {
+          return !someSelector(selector, getArgs(arguments), false);
+        },
+
+        noneSelector = function(selector) {
+          return !someSelector(selector, getArgs(arguments), true);
         };
 
       return {
-        map: function(selector) {
-          var args = getArgs(arguments),
-            methods = getMethods(selector);
-
-          return map(methods, function(method) {
-            return method.apply(null, args);
-          });
-        },
-        merge: function(selector) {
-          var args = getArgs(arguments),
-            results = this.map.apply(this, [selector].concat(args));
-
-          return results.reduce(extend, {});
-        },
-        any: function(selector) {
-          var args = getArgs(arguments),
-            results = this.map.apply(this, [selector].concat(args));
-
-          return results.some(function(result) { return result === true; });
-        },
-        all: function(selector) {
-          var args = getArgs(arguments),
-            results = this.map.apply(this, [selector].concat(args));
-
-          return !results.some(function(result) { return result === false; });
-        },
-        none: function(selector) {
-          var args = getArgs(arguments),
-            results = this.map.apply(this, [selector].concat(args));
-
-          return !results.some(function(result) { return result === true; });
-        }
+        map: mapSelector,
+        merge: mergeSelector,
+        any: anySelector,
+        all: allSelector,
+        none: noneSelector
       };
     }];
 
