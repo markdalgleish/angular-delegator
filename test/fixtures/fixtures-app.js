@@ -13,6 +13,14 @@
       $delegatorProvider.set(type + 'Services', serviceNamesFor(type));
     });
 
+    $delegatorProvider.set('EchoServices', [
+      'EchoA',
+      'EchoB',
+      'EchoC',
+      'EchoD',
+      'EchoE'
+    ]);
+
   });
 
   ['Foo', 'Bar', 'Baz'].forEach(function(serviceName, i) {
@@ -65,6 +73,14 @@
       };
     });
 
+  });
+
+  ['A', 'B', 'C', 'D', 'E'].forEach(function(serviceName, i) {
+    app.factory('Echo' + serviceName, function() {
+      return function(values){
+        return values[i];
+      };
+    });
   });
 
 }());

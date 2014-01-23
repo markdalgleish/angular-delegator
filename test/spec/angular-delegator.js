@@ -86,4 +86,12 @@ describe('Module: $delegator', function () {
 
   });
 
+  describe('truthy', function() {
+
+    it('should return an array of truthy values', function() {
+      expect($delegator.truthy('EchoServices', [1, false, 2, null, 3, undefined])).toEqual([1,2,3]);
+    });
+
+  });
+
 });

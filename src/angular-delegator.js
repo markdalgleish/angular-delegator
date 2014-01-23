@@ -54,6 +54,10 @@
           return mapSelector.apply(null, arguments).reduce(extend, {});
         },
 
+        truthySelector = function(selector) {
+          return mapSelector.apply(null, arguments).filter(function(result) { return result; });
+        },
+
         someSelector = function(selector, args, value) {
           return mapSelector.apply(null, [selector].concat(args)).some(function(result) { return result === value; });
         },
@@ -73,6 +77,7 @@
       return {
         map: mapSelector,
         merge: mergeSelector,
+        truthy: truthySelector,
         any: anySelector,
         all: allSelector,
         none: noneSelector
