@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/markdalgleish/angular-delegator.png?branch=master)](https://travis-ci.org/markdalgleish/angular-delegator)
+
 # angular-delegator
 
 Delegator pattern for AngularJS services.
@@ -15,6 +17,10 @@ In your web page:
 <script src="angular.js"></script>
 <script src="dist/angular-delegator.min.js"></script>
 ```
+
+## Usage
+
+Coming soon.
 
 ## License
 
