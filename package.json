@@ -12,6 +12,9 @@
     "name": "Mark Dalgleish",
     "url": "https://github.com/markdalgleish"
   },
+  "scripts": {
+    "test": "grunt"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/markdalgleish/angular-delegator.git"
