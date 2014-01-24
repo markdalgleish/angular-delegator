@@ -11,7 +11,7 @@
 
   var module = angular.module('delegator', []);
 
-  module.provider('$delegator', function() {
+  module.provider('$delegator', ['$provide', function($provide) {
     var collections = {};
 
     this.$get = ['$injector', function($injector) {
@@ -96,5 +96,27 @@
       collections[name] = services;
       return this;
     };
-  });
+
+    this.service = function(name, options) {
+      this.set(name, options.delegates);
+
+      $provide.service(name, ['$delegator', function($delegator) {
+        var makeDelegatorFunction = function(method) {
+          var selector = name + (method ? '.' + method : '');
+          return function() {
+            return $delegator[options.type].apply(null, [selector].concat([].slice.call(arguments)));
+          };
+        };
+
+        return options.interface ?
+          options.interface.reduce(function(delegator, method) {
+            delegator[method] = makeDelegatorFunction(method);
+            return delegator;
+          }, {}) :
+          makeDelegatorFunction();
+      }]);
+
+      return this;
+    };
+  }]);
 }());

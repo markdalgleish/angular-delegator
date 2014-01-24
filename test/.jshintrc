@@ -9,7 +9,7 @@
   "immed": true,
   "indent": 2,
   "latedef": true,
-  "newcap": true,
+  "newcap": false,
   "noarg": true,
   "quotmark": "single",
   "regexp": true,
@@ -22,11 +22,16 @@
   "predef": [
     "$",
     "angular",
+    "jasmine",
     "describe",
+    "ddescribe",
+    "xdescribe",
     "beforeEach",
     "afterEach",
     "inject",
     "it",
+    "iit",
+    "xit",
     "expect"
   ]
 }

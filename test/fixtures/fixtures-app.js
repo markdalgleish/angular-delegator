@@ -21,6 +21,24 @@
       'EchoE'
     ]);
 
+    // Services
+
+    $delegatorProvider
+      .service('GeneratedMapDelegator', {
+        type: 'map',
+        delegates: serviceNamesFor('Function')
+      })
+
+      .service('GeneratedMergeDelegator', {
+        type: 'merge',
+        delegates: serviceNamesFor('Function')
+      })
+
+      .service('GeneratedAnyDelegator', {
+        type: 'any',
+        delegates: serviceNamesFor('Boolean')
+      });
+
   });
 
   ['Foo', 'Bar', 'Baz'].forEach(function(serviceName, i) {
