@@ -74,13 +74,20 @@
           return !someSelector(selector, getArgs(arguments), true);
         };
 
-      return {
+      var strategies = {
         map: mapSelector,
         merge: mergeSelector,
         truthy: truthySelector,
         any: anySelector,
         all: allSelector,
         none: noneSelector
+      };
+
+      return {
+        run: function(selector, strategy) {
+          var args = [selector].concat([].slice.call(arguments, 2));
+          return strategies[strategy].apply(null, args);
+        }
       };
     }];
 
@@ -96,7 +103,7 @@
         var makeDelegatorFunction = function(method) {
           var selector = name + (method ? '.' + method : '');
           return function() {
-            return Delegator[options.type].apply(null, [selector].concat([].slice.call(arguments)));
+            return Delegator.run.apply(null, [selector, options.type].concat([].slice.call(arguments)));
           };
         };
 

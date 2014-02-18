@@ -15,15 +15,15 @@ describe('Module: Delegator', function () {
     describe('selectors', function() {
 
       it('should support services that return only functions', function() {
-        expect(Delegator.map('FunctionServices', 123)).toEqual([{ foo: 123 }, { bar: 123 }, { baz: 123 }]);
+        expect(Delegator.run('FunctionServices', 'map', 123)).toEqual([{ foo: 123 }, { bar: 123 }, { baz: 123 }]);
       });
 
       it('should support services that return objects', function() {
-        expect(Delegator.map('ObjectServices.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.run('ObjectServices.echo', 'map', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
       it('should support services that return nested objects', function() {
-        expect(Delegator.map('NestedObjectServices.foo.bar.baz.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.run('NestedObjectServices.foo.bar.baz.echo', 'map', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
     });
@@ -31,7 +31,7 @@ describe('Module: Delegator', function () {
     describe('arguments', function() {
 
       it('should support passing multiple arguments', function() {
-        expect(Delegator.map('MultipleArgServices', 1, 2, 3)).toEqual([{ foo: [1,2,3] }, { bar: [1,2,3] }, { baz: [1,2,3] }]);
+        expect(Delegator.run('MultipleArgServices', 'map', 1, 2, 3)).toEqual([{ foo: [1,2,3] }, { bar: [1,2,3] }, { baz: [1,2,3] }]);
       });
 
     });
@@ -39,7 +39,7 @@ describe('Module: Delegator', function () {
     describe('map', function() {
 
       it('should return an array of results', function() {
-        expect(Delegator.map('FunctionServices', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.run('FunctionServices', 'map', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
     });
@@ -47,7 +47,7 @@ describe('Module: Delegator', function () {
     describe('merge', function() {
 
       it('should merge the results into a single object', function() {
-        expect(Delegator.merge('FunctionServices', true)).toEqual({ foo: true, bar: true, baz: true });
+        expect(Delegator.run('FunctionServices', 'merge', true)).toEqual({ foo: true, bar: true, baz: true });
       });
 
     });
@@ -55,11 +55,11 @@ describe('Module: Delegator', function () {
     describe('any', function() {
 
       it('should return true if any result is true', function() {
-        expect(Delegator.any('BooleanServices', [false, true, false])).toEqual(true);
+        expect(Delegator.run('BooleanServices', 'any', [false, true, false])).toEqual(true);
       });
 
       it('should return false if any no result is true', function() {
-        expect(Delegator.any('BooleanServices', [false, false, false])).toEqual(false);
+        expect(Delegator.run('BooleanServices', 'any', [false, false, false])).toEqual(false);
       });
 
     });
@@ -67,11 +67,11 @@ describe('Module: Delegator', function () {
     describe('all', function() {
 
       it('should return true if all result are true', function() {
-        expect(Delegator.all('BooleanServices', [true, true, true])).toEqual(true);
+        expect(Delegator.run('BooleanServices', 'all', [true, true, true])).toEqual(true);
       });
 
       it('should return false if any any result is false', function() {
-        expect(Delegator.all('BooleanServices', [true, false, true])).toEqual(false);
+        expect(Delegator.run('BooleanServices', 'all', [true, false, true])).toEqual(false);
       });
 
     });
@@ -79,11 +79,11 @@ describe('Module: Delegator', function () {
     describe('none', function() {
 
       it('should return true if all result are false', function() {
-        expect(Delegator.none('BooleanServices', [false, false, false])).toEqual(true);
+        expect(Delegator.run('BooleanServices', 'none', [false, false, false])).toEqual(true);
       });
 
       it('should return false if any any result is true', function() {
-        expect(Delegator.none('BooleanServices', [false, false, true])).toEqual(false);
+        expect(Delegator.run('BooleanServices', 'none', [false, false, true])).toEqual(false);
       });
 
     });
@@ -91,7 +91,7 @@ describe('Module: Delegator', function () {
     describe('truthy', function() {
 
       it('should return an array of truthy values', function() {
-        expect(Delegator.truthy('EchoServices', [1, false, 2, null, 3, undefined])).toEqual([1,2,3]);
+        expect(Delegator.run('EchoServices', 'truthy', [1, false, 2, null, 3, undefined])).toEqual([1,2,3]);
       });
 
     });
@@ -108,7 +108,7 @@ describe('Module: Delegator', function () {
         app = angular.module('serviceTestApp', ['delegator'])
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              type: 'fakemethod',
+              type: 'fakeStrategy',
               delegates: [
                 'Foo',
                 'Bar',
@@ -123,7 +123,7 @@ describe('Module: Delegator', function () {
         inject(function(_Delegator_, _TestDelegator_) {
           Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          Delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
+          spyOn(Delegator, 'run').andReturn(returnValue);
         });
       });
 
@@ -132,7 +132,7 @@ describe('Module: Delegator', function () {
           result = TestDelegator(1,2,3,4);
 
         expect(result).toBe(expected);
-        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator', 1, 2, 3, 4);
+        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator', 'fakeStrategy', 1, 2, 3, 4);
       });
 
     });
@@ -143,7 +143,7 @@ describe('Module: Delegator', function () {
         app = angular.module('serviceTestApp', ['delegator'])
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              type: 'fakemethod',
+              type: 'fakeStrategy',
               interface: [
                 'foo',
                 'bar'
@@ -162,7 +162,7 @@ describe('Module: Delegator', function () {
         inject(function(_Delegator_, _TestDelegator_) {
           Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          Delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
+          spyOn(Delegator, 'run').andReturn(returnValue);
         });
       });
 
@@ -173,8 +173,8 @@ describe('Module: Delegator', function () {
         TestDelegator.bar(3,4);
 
         expect(result).toBe(expected);
-        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.foo', 1, 2);
-        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.bar', 3, 4);
+        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator.foo', 'fakeStrategy', 1, 2);
+        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator.bar', 'fakeStrategy', 3, 4);
       });
 
     });

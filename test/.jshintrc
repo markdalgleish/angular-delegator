@@ -32,6 +32,7 @@
     "it",
     "iit",
     "xit",
-    "expect"
+    "expect",
+    "spyOn"
   ]
 }
