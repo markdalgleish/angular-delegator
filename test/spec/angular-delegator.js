@@ -1,29 +1,29 @@
 'use strict';
 
-describe('Module: $delegator', function () {
+describe('Module: Delegator', function () {
 
-  var results, $delegator;
+  var results, Delegator;
 
-  describe('$delegator', function() {
+  describe('Delegator', function() {
 
     beforeEach(module('fixturesApp'));
 
-    beforeEach(inject(function(_$delegator_) {
-      $delegator = _$delegator_;
+    beforeEach(inject(function(_Delegator_) {
+      Delegator = _Delegator_;
     }));
 
     describe('selectors', function() {
 
       it('should support services that return only functions', function() {
-        expect($delegator.map('FunctionServices', 123)).toEqual([{ foo: 123 }, { bar: 123 }, { baz: 123 }]);
+        expect(Delegator.map('FunctionServices', 123)).toEqual([{ foo: 123 }, { bar: 123 }, { baz: 123 }]);
       });
 
       it('should support services that return objects', function() {
-        expect($delegator.map('ObjectServices.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.map('ObjectServices.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
       it('should support services that return nested objects', function() {
-        expect($delegator.map('NestedObjectServices.foo.bar.baz.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.map('NestedObjectServices.foo.bar.baz.echo', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
     });
@@ -31,7 +31,7 @@ describe('Module: $delegator', function () {
     describe('arguments', function() {
 
       it('should support passing multiple arguments', function() {
-        expect($delegator.map('MultipleArgServices', 1, 2, 3)).toEqual([{ foo: [1,2,3] }, { bar: [1,2,3] }, { baz: [1,2,3] }]);
+        expect(Delegator.map('MultipleArgServices', 1, 2, 3)).toEqual([{ foo: [1,2,3] }, { bar: [1,2,3] }, { baz: [1,2,3] }]);
       });
 
     });
@@ -39,7 +39,7 @@ describe('Module: $delegator', function () {
     describe('map', function() {
 
       it('should return an array of results', function() {
-        expect($delegator.map('FunctionServices', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
+        expect(Delegator.map('FunctionServices', true)).toEqual([{ foo: true }, { bar: true }, { baz: true }]);
       });
 
     });
@@ -47,7 +47,7 @@ describe('Module: $delegator', function () {
     describe('merge', function() {
 
       it('should merge the results into a single object', function() {
-        expect($delegator.merge('FunctionServices', true)).toEqual({ foo: true, bar: true, baz: true });
+        expect(Delegator.merge('FunctionServices', true)).toEqual({ foo: true, bar: true, baz: true });
       });
 
     });
@@ -55,11 +55,11 @@ describe('Module: $delegator', function () {
     describe('any', function() {
 
       it('should return true if any result is true', function() {
-        expect($delegator.any('BooleanServices', [false, true, false])).toEqual(true);
+        expect(Delegator.any('BooleanServices', [false, true, false])).toEqual(true);
       });
 
       it('should return false if any no result is true', function() {
-        expect($delegator.any('BooleanServices', [false, false, false])).toEqual(false);
+        expect(Delegator.any('BooleanServices', [false, false, false])).toEqual(false);
       });
 
     });
@@ -67,11 +67,11 @@ describe('Module: $delegator', function () {
     describe('all', function() {
 
       it('should return true if all result are true', function() {
-        expect($delegator.all('BooleanServices', [true, true, true])).toEqual(true);
+        expect(Delegator.all('BooleanServices', [true, true, true])).toEqual(true);
       });
 
       it('should return false if any any result is false', function() {
-        expect($delegator.all('BooleanServices', [true, false, true])).toEqual(false);
+        expect(Delegator.all('BooleanServices', [true, false, true])).toEqual(false);
       });
 
     });
@@ -79,11 +79,11 @@ describe('Module: $delegator', function () {
     describe('none', function() {
 
       it('should return true if all result are false', function() {
-        expect($delegator.none('BooleanServices', [false, false, false])).toEqual(true);
+        expect(Delegator.none('BooleanServices', [false, false, false])).toEqual(true);
       });
 
       it('should return false if any any result is true', function() {
-        expect($delegator.none('BooleanServices', [false, false, true])).toEqual(false);
+        expect(Delegator.none('BooleanServices', [false, false, true])).toEqual(false);
       });
 
     });
@@ -91,7 +91,7 @@ describe('Module: $delegator', function () {
     describe('truthy', function() {
 
       it('should return an array of truthy values', function() {
-        expect($delegator.truthy('EchoServices', [1, false, 2, null, 3, undefined])).toEqual([1,2,3]);
+        expect(Delegator.truthy('EchoServices', [1, false, 2, null, 3, undefined])).toEqual([1,2,3]);
       });
 
     });
@@ -106,8 +106,8 @@ describe('Module: $delegator', function () {
 
       beforeEach(function() {
         app = angular.module('serviceTestApp', ['delegator'])
-          .config(function($delegatorProvider) {
-            $delegatorProvider.service('TestDelegator', {
+          .config(function(DelegatorProvider) {
+            DelegatorProvider.service('TestDelegator', {
               type: 'fakemethod',
               delegates: [
                 'Foo',
@@ -120,10 +120,10 @@ describe('Module: $delegator', function () {
         module('serviceTestApp');
 
         returnValue = { foo: 'bar' };
-        inject(function(_$delegator_, _TestDelegator_) {
-          $delegator = _$delegator_;
+        inject(function(_Delegator_, _TestDelegator_) {
+          Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          $delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
+          Delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
         });
       });
 
@@ -132,7 +132,7 @@ describe('Module: $delegator', function () {
           result = TestDelegator(1,2,3,4);
 
         expect(result).toBe(expected);
-        expect($delegator.fakemethod).toHaveBeenCalledWith('TestDelegator', 1, 2, 3, 4);
+        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator', 1, 2, 3, 4);
       });
 
     });
@@ -141,8 +141,8 @@ describe('Module: $delegator', function () {
 
       beforeEach(function() {
         app = angular.module('serviceTestApp', ['delegator'])
-          .config(function($delegatorProvider) {
-            $delegatorProvider.service('TestDelegator', {
+          .config(function(DelegatorProvider) {
+            DelegatorProvider.service('TestDelegator', {
               type: 'fakemethod',
               interface: [
                 'foo',
@@ -159,10 +159,10 @@ describe('Module: $delegator', function () {
         module('serviceTestApp');
 
         returnValue = { foo: 'bar' };
-        inject(function(_$delegator_, _TestDelegator_) {
-          $delegator = _$delegator_;
+        inject(function(_Delegator_, _TestDelegator_) {
+          Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          $delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
+          Delegator.fakemethod = jasmine.createSpy('fakemethod').andReturn(returnValue);
         });
       });
 
@@ -173,8 +173,8 @@ describe('Module: $delegator', function () {
         TestDelegator.bar(3,4);
 
         expect(result).toBe(expected);
-        expect($delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.foo', 1, 2);
-        expect($delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.bar', 3, 4);
+        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.foo', 1, 2);
+        expect(Delegator.fakemethod).toHaveBeenCalledWith('TestDelegator.bar', 3, 4);
       });
 
     });

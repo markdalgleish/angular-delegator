@@ -3,17 +3,17 @@
 
   var app = angular.module('fixturesApp', ['delegator']);
 
-  app.config(function($delegatorProvider) {
+  app.config(function(DelegatorProvider) {
 
     var serviceNamesFor = function(type) {
       return ['Foo','Bar','Baz'].map(function(name) { return type + name; });
     };
 
     ['Function', 'Object', 'NestedObject', 'MultipleArg', 'Boolean'].forEach(function(type) {
-      $delegatorProvider.set(type + 'Services', serviceNamesFor(type));
+      DelegatorProvider.set(type + 'Services', serviceNamesFor(type));
     });
 
-    $delegatorProvider.set('EchoServices', [
+    DelegatorProvider.set('EchoServices', [
       'EchoA',
       'EchoB',
       'EchoC',
@@ -23,7 +23,7 @@
 
     // Services
 
-    $delegatorProvider
+    DelegatorProvider
       .service('GeneratedMapDelegator', {
         type: 'map',
         delegates: serviceNamesFor('Function')

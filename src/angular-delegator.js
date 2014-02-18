@@ -3,7 +3,7 @@
 
   var module = angular.module('delegator', []);
 
-  module.provider('$delegator', ['$provide', function($provide) {
+  module.provider('Delegator', ['$provide', function($provide) {
     var collections = {};
 
     this.$get = ['$injector', function($injector) {
@@ -92,11 +92,11 @@
     this.service = function(name, options) {
       this.set(name, options.delegates);
 
-      $provide.service(name, ['$delegator', function($delegator) {
+      $provide.service(name, ['Delegator', function(Delegator) {
         var makeDelegatorFunction = function(method) {
           var selector = name + (method ? '.' + method : '');
           return function() {
-            return $delegator[options.type].apply(null, [selector].concat([].slice.call(arguments)));
+            return Delegator[options.type].apply(null, [selector].concat([].slice.call(arguments)));
           };
         };
 
