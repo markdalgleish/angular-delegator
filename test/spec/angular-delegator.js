@@ -100,15 +100,35 @@ describe('Module: Delegator', function () {
 
   describe('service', function() {
 
-    var app, TestDelegator, returnValue;
+    var app, TestDelegator, returnValue, strategySpy, Foo, Bar, Baz;
 
-    describe('function delegators', function() {
+    beforeEach(function() {
+      returnValue = { foo: 'bar' };
+      strategySpy = jasmine.createSpy('strategySpy').andReturn(returnValue);
+      Foo = { qux: jasmine.createSpy('FooQux') };
+      Bar = { qux: jasmine.createSpy('BarQux') };
+      Baz = { qux: jasmine.createSpy('BazQux') };
+    });
+
+    describe('custom function strategies', function() {
 
       beforeEach(function() {
         app = angular.module('serviceTestApp', ['delegator'])
+          .factory('Foo', function() {
+            return Foo;
+          })
+          .factory('Bar', function() {
+            return Bar;
+          })
+          .factory('Baz', function() {
+            return Baz;
+          })
+          .factory('FooBarDelegatorStrategy', function() {
+            return strategySpy;
+          })
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              type: 'fakeStrategy',
+              type: 'fooBar',
               delegates: [
                 'Foo',
                 'Bar',
@@ -119,35 +139,44 @@ describe('Module: Delegator', function () {
 
         module('serviceTestApp');
 
-        returnValue = { foo: 'bar' };
         inject(function(_Delegator_, _TestDelegator_) {
           Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          spyOn(Delegator, 'run').andReturn(returnValue);
         });
       });
 
-      it('should create a service that calls the delegator', function() {
+      it('should allow the use of custom strategies', function() {
         var expected = returnValue,
           result = TestDelegator(1,2,3,4);
 
         expect(result).toBe(expected);
-        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator', 'fakeStrategy', 1, 2, 3, 4);
+        expect(strategySpy).toHaveBeenCalledWith([Foo, Bar, Baz], [1, 2, 3, 4]);
       });
 
     });
 
-    describe('object delegators', function() {
+    describe('custom object strategies', function() {
 
       beforeEach(function() {
         app = angular.module('serviceTestApp', ['delegator'])
+          .factory('Foo', function() {
+            return Foo;
+          })
+          .factory('Bar', function() {
+            return Bar;
+          })
+          .factory('Baz', function() {
+            return Baz;
+          })
+          .factory('FooBarDelegatorStrategy', function() {
+            return strategySpy;
+          })
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              type: 'fakeStrategy',
               interface: [
-                'foo',
-                'bar'
+                'qux'
               ],
+              type: 'fooBar',
               delegates: [
                 'Foo',
                 'Bar',
@@ -158,23 +187,18 @@ describe('Module: Delegator', function () {
 
         module('serviceTestApp');
 
-        returnValue = { foo: 'bar' };
         inject(function(_Delegator_, _TestDelegator_) {
           Delegator = _Delegator_;
           TestDelegator = _TestDelegator_;
-          spyOn(Delegator, 'run').andReturn(returnValue);
         });
       });
 
-      it('should create a service that calls nested methods on the delegator', function() {
-        var expected = returnValue;
-
-        var result = TestDelegator.foo(1,2);
-        TestDelegator.bar(3,4);
+      it('should allow the use of custom strategies', function() {
+        var expected = returnValue,
+          result = TestDelegator.qux(1,2,3,4);
 
         expect(result).toBe(expected);
-        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator.foo', 'fakeStrategy', 1, 2);
-        expect(Delegator.run).toHaveBeenCalledWith('TestDelegator.bar', 'fakeStrategy', 3, 4);
+        expect(strategySpy).toHaveBeenCalledWith([Foo.qux, Bar.qux, Baz.qux], [1, 2, 3, 4]);
       });
 
     });
