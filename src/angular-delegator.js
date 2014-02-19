@@ -88,9 +88,9 @@
         };
 
         return {
-          run: function(selector, type) {
+          run: function(selector, strategy) {
             var args = [].slice.call(arguments, 2);
-            return (strategies[type] || $injector.get(strategyServiceNameFrom(type))).call(null, getFunctions(selector), args);
+            return (strategies[strategy] || $injector.get(strategyServiceNameFrom(strategy))).call(null, getFunctions(selector), args);
           }
         };
       }];
@@ -104,16 +104,16 @@
         this.set(name, options.delegates);
 
         $provide.service(name, ['Delegator', function(Delegator) {
-          var makeDelegatorFunction = function(method) {
+          var makeDelegatorFunction = function(method, strategy) {
             var selector = name + (method ? '.' + method : '');
             return function() {
-              return Delegator.run.apply(null, [selector, options.type].concat([].slice.call(arguments)));
+              return Delegator.run.apply(null, [selector, strategy || options.interface].concat([].slice.call(arguments)));
             };
           };
 
-          return options.interface ?
-            options.interface.reduce(function(delegator, method) {
-              delegator[method] = makeDelegatorFunction(method);
+          return typeof options.interface === 'object' ?
+            Object.keys(options.interface).reduce(function(delegator, method) {
+              delegator[method] = makeDelegatorFunction(method, options.interface[method]);
               return delegator;
             }, {}) :
             makeDelegatorFunction();

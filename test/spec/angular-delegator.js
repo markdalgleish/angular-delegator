@@ -128,7 +128,7 @@ describe('Module: Delegator', function () {
           })
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              type: 'fooBar',
+              interface: 'fooBar',
               delegates: [
                 'Foo',
                 'Bar',
@@ -173,10 +173,9 @@ describe('Module: Delegator', function () {
           })
           .config(function(DelegatorProvider) {
             DelegatorProvider.service('TestDelegator', {
-              interface: [
-                'qux'
-              ],
-              type: 'fooBar',
+              interface: {
+                'qux': 'fooBar'
+              },
               delegates: [
                 'Foo',
                 'Bar',
