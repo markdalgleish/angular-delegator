@@ -1,5 +1,5 @@
 /*!
- * angular-delegator v0.0.3
+ * angular-delegator v0.0.4
  * https://github.com/markdalgleish/angular-delegator
  *
  * Copyright 2014, Mark Dalgleish
@@ -11,112 +11,123 @@
 
   var module = angular.module('delegator', []);
 
-  module.provider('$delegator', ['$provide', function($provide) {
-    var collections = {};
+  module
+    .provider('Delegator', ['$provide', function($provide) {
+      var collections = {};
 
-    this.$get = ['$injector', function($injector) {
+      this.$get = ['$injector', function($injector) {
 
-      var map = function(arr, fn) {
-          return arr.map(fn);
-        },
+        var map = function(arr, fn) {
+            return arr.map(fn);
+          },
 
-        getArgs = function(args) {
-          return [].slice.call(args, 1);
-        },
+          getArgs = function(args) {
+            return [].slice.call(args, 1);
+          },
 
-        getFunctions = function(selector) {
-          var parts = selector.split('.'),
-            name = parts[0],
-            serviceInstances = collections[name].map($injector.get),
-            propertyNames = parts.slice(1),
-            fns = serviceInstances;
+          getFunctions = function(selector) {
+            var parts = selector.split('.'),
+              name = parts[0],
+              serviceInstances = collections[name].map($injector.get),
+              propertyNames = parts.slice(1),
+              fns = serviceInstances;
 
-          propertyNames.forEach(function(propertyName) {
-            fns = fns.map(function(fn) {
-              return fn[propertyName];
+            propertyNames.forEach(function(propertyName) {
+              fns = fns.map(function(fn) {
+                return fn[propertyName];
+              });
             });
-          });
 
-          return fns;
-        },
+            return fns;
+          },
 
-        extend = function(acc, obj) {
-          for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-              acc[key] = obj[key];
+          strategyServiceNameFrom = function(strategyShortName) {
+            return strategyShortName[0].toUpperCase() +
+              strategyShortName.slice(1) +
+              'DelegatorStrategy';
+          },
+
+          extend = function(acc, obj) {
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                acc[key] = obj[key];
+              }
             }
-          }
-          return acc;
-        },
+            return acc;
+          },
 
-        mapSelector = function(selector) {
-          var args = getArgs(arguments),
-            fns = getFunctions(selector);
+          mapSelector = function(fns, args) {
+            return map(fns, function(fn) {
+              return fn.apply(null, args);
+            });
+          },
 
-          return map(fns, function(fn) {
-            return fn.apply(null, args);
-          });
-        },
+          mergeSelector = function() {
+            return mapSelector.apply(null, arguments).reduce(extend, {});
+          },
 
-        mergeSelector = function() {
-          return mapSelector.apply(null, arguments).reduce(extend, {});
-        },
+          truthySelector = function() {
+            return mapSelector.apply(null, arguments).filter(function(result) { return result; });
+          },
 
-        truthySelector = function(selector) {
-          return mapSelector.apply(null, arguments).filter(function(result) { return result; });
-        },
+          someSelector = function(fns, args, value) {
+            return mapSelector.call(null, fns, args).some(function(result) { return result === value; });
+          },
 
-        someSelector = function(selector, args, value) {
-          return mapSelector.apply(null, [selector].concat(args)).some(function(result) { return result === value; });
-        },
+          anySelector = function(fns, args) {
+            return someSelector(fns, args, true);
+          },
 
-        anySelector = function(selector) {
-          return someSelector(selector, getArgs(arguments), true);
-        },
+          allSelector = function(fns, args) {
+            return !someSelector(fns, args, false);
+          },
 
-        allSelector = function(selector) {
-          return !someSelector(selector, getArgs(arguments), false);
-        },
-
-        noneSelector = function(selector) {
-          return !someSelector(selector, getArgs(arguments), true);
-        };
-
-      return {
-        map: mapSelector,
-        merge: mergeSelector,
-        truthy: truthySelector,
-        any: anySelector,
-        all: allSelector,
-        none: noneSelector
-      };
-    }];
-
-    this.set = function(name, services) {
-      collections[name] = services;
-      return this;
-    };
-
-    this.service = function(name, options) {
-      this.set(name, options.delegates);
-
-      $provide.service(name, ['$delegator', function($delegator) {
-        var makeDelegatorFunction = function(method) {
-          var selector = name + (method ? '.' + method : '');
-          return function() {
-            return $delegator[options.type].apply(null, [selector].concat([].slice.call(arguments)));
+          noneSelector = function(fns, args) {
+            return !someSelector(fns, args, true);
           };
+
+        var strategies = {
+          map: mapSelector,
+          merge: mergeSelector,
+          truthy: truthySelector,
+          any: anySelector,
+          all: allSelector,
+          none: noneSelector
         };
 
-        return options.interface ?
-          options.interface.reduce(function(delegator, method) {
-            delegator[method] = makeDelegatorFunction(method);
-            return delegator;
-          }, {}) :
-          makeDelegatorFunction();
-      }]);
+        return {
+          run: function(selector, strategy) {
+            var args = [].slice.call(arguments, 2);
+            return (strategies[strategy] || $injector.get(strategyServiceNameFrom(strategy))).call(null, getFunctions(selector), args);
+          }
+        };
+      }];
 
-      return this;
-    };
-  }]);
+      this.set = function(name, services) {
+        collections[name] = services;
+        return this;
+      };
+
+      this.service = function(name, options) {
+        this.set(name, options.delegates);
+
+        $provide.service(name, ['Delegator', function(Delegator) {
+          var makeDelegatorFunction = function(method, strategy) {
+            var selector = name + (method ? '.' + method : '');
+            return function() {
+              return Delegator.run.apply(null, [selector, strategy || options.interface].concat([].slice.call(arguments)));
+            };
+          };
+
+          return typeof options.interface === 'object' ?
+            Object.keys(options.interface).reduce(function(delegator, method) {
+              delegator[method] = makeDelegatorFunction(method, options.interface[method]);
+              return delegator;
+            }, {}) :
+            makeDelegatorFunction();
+        }]);
+
+        return this;
+      };
+    }]);
 }());
