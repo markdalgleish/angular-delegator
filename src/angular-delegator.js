@@ -1,6 +1,12 @@
 (function() {
   'use strict';
 
+  var invert = function(fn) {
+    return function() {
+      return !fn.apply(this, arguments);
+    };
+  };
+
   angular.module('delegator', [])
 
     .provider('Delegator', ['$provide', function($provide) {
@@ -101,28 +107,24 @@
       };
     })
 
-    .factory('SomeDelegatorStrategy', function(MapDelegatorStrategy) {
-      return function(fns, args, value) {
-        return MapDelegatorStrategy(fns, args).some(function(result) { return result === value; });
+    .factory('SomeDelegatorStrategyFactory', function(MapDelegatorStrategy) {
+      return function(value) {
+        return function(fns, args) {
+          return MapDelegatorStrategy(fns, args).some(function(result) { return result === value; });
+        };
       };
     })
 
-    .factory('AnyDelegatorStrategy', function(SomeDelegatorStrategy) {
-      return function(fns, args) {
-        return SomeDelegatorStrategy(fns, args, true);
-      };
+    .factory('AnyDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+      return SomeDelegatorStrategyFactory(true);
     })
 
-    .factory('AllDelegatorStrategy', function(SomeDelegatorStrategy) {
-      return function(fns, args) {
-        return !SomeDelegatorStrategy(fns, args, false);
-      };
+    .factory('AllDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+      return invert(SomeDelegatorStrategyFactory(false));
     })
 
-    .factory('NoneDelegatorStrategy', function(SomeDelegatorStrategy) {
-      return function(fns, args) {
-        return !SomeDelegatorStrategy(fns, args, true);
-      };
+    .factory('NoneDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+      return invert(SomeDelegatorStrategyFactory(true));
     });
 
 }());
