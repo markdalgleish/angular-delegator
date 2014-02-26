@@ -10,6 +10,8 @@ Angular Delegator dynamically creates delegator services based on your configura
 
 Each delegate service has the same interface as its delegator, allowing you to easily split complicated chunks of business logic into many small, simple steps.
 
+> **Please note:** Angular Delegator is a very young project and the API is likely to change in the near future.
+
 ### Example
 
 If you had a large validation service that checked an account's name, date, address and payment info, you could break it down like so:
