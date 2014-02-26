@@ -6,133 +6,131 @@
  * This content is released under the MIT license
  */
 
-(function() {
-  'use strict';
+angular.module('delegator', [])
+  .provider('Delegator', ['$provide', function($provide) {
+    var collections = {};
 
-  var invert = function(fn) {
-    return function() {
-      return !fn.apply(this, arguments);
-    };
-  };
+    this.$get = ['$injector', function($injector) {
 
-  angular.module('delegator', [])
+      var getFunctions = function(selector) {
+          var parts = selector.split('.'),
+            name = parts[0],
+            serviceInstances = collections[name].map($injector.get),
+            propertyNames = parts.slice(1),
+            fns = serviceInstances;
 
-    .provider('Delegator', ['$provide', function($provide) {
-      var collections = {};
-
-      this.$get = ['$injector', function($injector) {
-
-        var getFunctions = function(selector) {
-            var parts = selector.split('.'),
-              name = parts[0],
-              serviceInstances = collections[name].map($injector.get),
-              propertyNames = parts.slice(1),
-              fns = serviceInstances;
-
-            propertyNames.forEach(function(propertyName) {
-              fns = fns.map(function(fn) {
-                return fn[propertyName];
-              });
+          propertyNames.forEach(function(propertyName) {
+            fns = fns.map(function(fn) {
+              return fn[propertyName];
             });
+          });
 
-            return fns;
-          },
+          return fns;
+        },
 
-          strategyServiceNameFrom = function(strategyShortName) {
-            return strategyShortName[0].toUpperCase() +
-              strategyShortName.slice(1) +
-              'DelegatorStrategy';
-          };
-
-        var strategies = {};
-
-        return {
-          run: function(selector, strategyShortName) {
-            var args = [].slice.call(arguments, 2);
-            return $injector.get(strategyServiceNameFrom(strategyShortName)).call(null, getFunctions(selector), args);
-          }
+        strategyServiceNameFrom = function(strategyShortName) {
+          return strategyShortName[0].toUpperCase() +
+            strategyShortName.slice(1) +
+            'DelegatorStrategy';
         };
-      }];
 
-      this.set = function(name, services) {
-        collections[name] = services;
-        return this;
-      };
+      var strategies = {};
 
-      this.service = function(name, options) {
-        this.set(name, options.delegates);
-
-        $provide.service(name, ['Delegator', function(Delegator) {
-          var makeDelegatorFunction = function(method, strategy) {
-            var selector = name + (method ? '.' + method : '');
-            return function() {
-              return Delegator.run.apply(null, [selector, strategy || options.interface].concat([].slice.call(arguments)));
-            };
-          };
-
-          return typeof options.interface === 'object' ?
-            Object.keys(options.interface).reduce(function(delegator, method) {
-              delegator[method] = makeDelegatorFunction(method, options.interface[method]);
-              return delegator;
-            }, {}) :
-            makeDelegatorFunction();
-        }]);
-
-        return this;
-      };
-    }])
-
-    .factory('MapDelegatorStrategy', function() {
-      var map = function(arr, fn) {
-        return arr.map(fn);
-      };
-
-      return function(fns, args) {
-        return map(fns, function(fn) {
-          return fn.apply(null, args);
-        });
-      };
-    })
-
-    .factory('MergeDelegatorStrategy', function(MapDelegatorStrategy) {
-      var extend = function(acc, obj) {
-        for (var key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            acc[key] = obj[key];
-          }
+      return {
+        run: function(selector, strategyShortName) {
+          var args = [].slice.call(arguments, 2);
+          return $injector.get(strategyServiceNameFrom(strategyShortName)).call(null, getFunctions(selector), args);
         }
-        return acc;
       };
+    }];
 
-      return function() {
-        return MapDelegatorStrategy.apply(null, arguments).reduce(extend, {});
-      };
-    })
+    this.set = function(name, services) {
+      collections[name] = services;
+      return this;
+    };
 
-    .factory('TruthyDelegatorStrategy', function(MapDelegatorStrategy) {
-      return function() {
-        return MapDelegatorStrategy.apply(null, arguments).filter(function(result) { return result; });
-      };
-    })
+    this.service = function(name, options) {
+      this.set(name, options.delegates);
 
-    .factory('SomeDelegatorStrategyFactory', function(MapDelegatorStrategy) {
-      return function(value) {
-        return function(fns, args) {
-          return MapDelegatorStrategy(fns, args).some(function(result) { return result === value; });
+      $provide.service(name, ['Delegator', function(Delegator) {
+        var makeDelegatorFunction = function(method, strategy) {
+          var selector = name + (method ? '.' + method : '');
+          return function() {
+            return Delegator.run.apply(null, [selector, strategy || options.interface].concat([].slice.call(arguments)));
+          };
         };
+
+        return typeof options.interface === 'object' ?
+          Object.keys(options.interface).reduce(function(delegator, method) {
+            delegator[method] = makeDelegatorFunction(method, options.interface[method]);
+            return delegator;
+          }, {}) :
+          makeDelegatorFunction();
+      }]);
+
+      return this;
+    };
+  }]);
+
+angular.module('delegator')
+  .factory('AllDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+    return SomeDelegatorStrategyFactory(false, true);
+  });
+
+angular.module('delegator')
+  .factory('AnyDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+    return SomeDelegatorStrategyFactory(true, false);
+  });
+
+angular.module('delegator')
+  .factory('MapDelegatorStrategy', function() {
+    return function(fns, args) {
+      return fns.map(function(fn) {
+        return fn.apply(null, args);
+      });
+    };
+  });
+
+angular.module('delegator')
+  .factory('MergeDelegatorStrategy', function(MapDelegatorStrategy) {
+    var extend = function(acc, obj) {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          acc[key] = obj[key];
+        }
+      }
+      return acc;
+    };
+
+    return function() {
+      return MapDelegatorStrategy.apply(null, arguments).reduce(extend, {});
+    };
+  });
+
+angular.module('delegator')
+  .factory('NoneDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
+    return SomeDelegatorStrategyFactory(true, true);
+  });
+
+angular.module('delegator')
+  .factory('TruthyDelegatorStrategy', function(MapDelegatorStrategy) {
+    return function() {
+      return MapDelegatorStrategy.apply(null, arguments).filter(function(result) { return result; });
+    };
+  });
+
+angular.module('delegator')
+  .factory('SomeDelegatorStrategyFactory', function(MapDelegatorStrategy) {
+    var invert = function(fn) {
+      return function() {
+        return !fn.apply(this, arguments);
       };
-    })
+    };
 
-    .factory('AnyDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-      return SomeDelegatorStrategyFactory(true);
-    })
-
-    .factory('AllDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-      return invert(SomeDelegatorStrategyFactory(false));
-    })
-
-    .factory('NoneDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-      return invert(SomeDelegatorStrategyFactory(true));
-    });
-
-}());
+    return function(value, isInverted) {
+      var strategy = function(fns, args) {
+        return MapDelegatorStrategy(fns, args).some(function(result) { return result === value; });
+      };
+      return isInverted ? invert(strategy) : strategy;
+    };
+  });

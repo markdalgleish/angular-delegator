@@ -49,7 +49,7 @@ module.exports = function(grunt) {
       },
       src: {
         files: [
-          '{.tmp,<%= yo.src %>}/{,*/}*.js'
+          '{.tmp,<%= yo.src %>}/**/*.js'
         ],
         tasks: ['test']
       },
@@ -69,7 +69,7 @@ module.exports = function(grunt) {
         options: {
           jshintrc: '.jshintrc'
         },
-        src: ['<%= yo.src %>/{,*/}*.js']
+        src: ['<%= yo.src %>/**/*.js']
       },
       test: {
         options: {
@@ -94,7 +94,7 @@ module.exports = function(grunt) {
         banner: '<%= meta.banner %>'
       },
       dist: {
-        src: ['<%= yo.src %>/<%= pkg.name %>.js'],
+        src: ['<%= yo.src %>/**/*.js'],
         dest: '<%= yo.dist %>/<%= pkg.name %>.js'
       }
     },
