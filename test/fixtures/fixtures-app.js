@@ -9,35 +9,9 @@
       return ['Foo','Bar','Baz'].map(function(name) { return type + name; });
     };
 
-    ['Function', 'Object', 'NestedObject', 'MultipleArg', 'Boolean'].forEach(function(type) {
+    ['Function', 'Object', 'NestedObject'].forEach(function(type) {
       DelegatorProvider.set(type + 'Services', serviceNamesFor(type));
     });
-
-    DelegatorProvider.set('EchoServices', [
-      'EchoA',
-      'EchoB',
-      'EchoC',
-      'EchoD',
-      'EchoE'
-    ]);
-
-    // Services
-
-    DelegatorProvider
-      .service('GeneratedMapDelegator', {
-        type: 'map',
-        delegates: serviceNamesFor('Function')
-      })
-
-      .service('GeneratedMergeDelegator', {
-        type: 'merge',
-        delegates: serviceNamesFor('Function')
-      })
-
-      .service('GeneratedAnyDelegator', {
-        type: 'any',
-        delegates: serviceNamesFor('Boolean')
-      });
 
   });
 
@@ -77,28 +51,6 @@
       };
     });
 
-    app.factory('MultipleArg' + serviceName, function() {
-      return function(arg1, arg2, arg3){
-        var obj = {};
-        obj[serviceName.toLowerCase()] = [arg1, arg2, arg3];
-        return obj;
-      };
-    });
-
-    app.factory('Boolean' + serviceName, function() {
-      return function(values){
-        return values[i];
-      };
-    });
-
-  });
-
-  ['A', 'B', 'C', 'D', 'E'].forEach(function(serviceName, i) {
-    app.factory('Echo' + serviceName, function() {
-      return function(values){
-        return values[i];
-      };
-    });
   });
 
 }());

@@ -91,7 +91,8 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        banner: '<%= meta.banner %>'
+        banner: '<%= meta.banner %>(function(){\n\n',
+        footer: '\n}());'
       },
       dist: {
         src: ['<%= yo.src %>/**/*.js'],

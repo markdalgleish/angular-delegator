@@ -6,6 +6,8 @@
  * This content is released under the MIT license
  */
 
+(function(){
+
 angular.module('delegator', [])
   .provider('Delegator', ['$provide', function($provide) {
     var collections = {};
@@ -73,13 +75,17 @@ angular.module('delegator', [])
   }]);
 
 angular.module('delegator')
-  .factory('AllDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-    return SomeDelegatorStrategyFactory(false, true);
+  .factory('AllDelegatorStrategy', function(MapDelegatorStrategy) {
+    return function(fns, args) {
+      return !MapDelegatorStrategy(fns, args).some(function(value){ return value === false; });
+    };
   });
 
 angular.module('delegator')
-  .factory('AnyDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-    return SomeDelegatorStrategyFactory(true, false);
+  .factory('AnyDelegatorStrategy', function(MapDelegatorStrategy) {
+    return function(fns, args) {
+      return MapDelegatorStrategy(fns, args).some(function(value){ return value === true; });
+    };
   });
 
 angular.module('delegator')
@@ -108,8 +114,10 @@ angular.module('delegator')
   });
 
 angular.module('delegator')
-  .factory('NoneDelegatorStrategy', function(SomeDelegatorStrategyFactory) {
-    return SomeDelegatorStrategyFactory(true, true);
+  .factory('NoneDelegatorStrategy', function(MapDelegatorStrategy) {
+    return function(fns, args) {
+      return !MapDelegatorStrategy(fns, args).some(function(value){ return value === true; });
+    };
   });
 
 angular.module('delegator')
@@ -119,18 +127,4 @@ angular.module('delegator')
     };
   });
 
-angular.module('delegator')
-  .factory('SomeDelegatorStrategyFactory', function(MapDelegatorStrategy) {
-    var invert = function(fn) {
-      return function() {
-        return !fn.apply(this, arguments);
-      };
-    };
-
-    return function(value, isInverted) {
-      var strategy = function(fns, args) {
-        return MapDelegatorStrategy(fns, args).some(function(result) { return result === value; });
-      };
-      return isInverted ? invert(strategy) : strategy;
-    };
-  });
+}());
