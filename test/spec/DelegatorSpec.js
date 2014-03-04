@@ -22,8 +22,8 @@ describe('Module: Delegator', function () {
           .factory('Bar', function() { return Bar; })
           .factory('Baz', function() { return Baz; })
           .factory('FooBarDelegatorStrategy', function() { return strategySpy; })
-          .config(function(DelegatorProvider) {
-            DelegatorProvider.service('TestDelegator', {
+          .factory('TestDelegator', function(Delegator) {
+            return Delegator.create({
               interface: {
                 'qux': 'fooBar'
               },
