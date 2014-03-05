@@ -1,9 +1,9 @@
 /*!
- * angular-delegator v0.0.8
- * https://github.com/markdalgleish/angular-delegator
+ * Angular Delegator v0.0.8
  *
  * Copyright 2014, Mark Dalgleish
  * This content is released under the MIT license
+ * http://markdalgleish.mit-license.org
  */
 
 (function(){

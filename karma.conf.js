@@ -14,14 +14,20 @@ module.exports = function(config) {
       'test/spec/**/*js'
     ],
 
-    // list of files to exclude
     exclude: [],
 
     frameworks: ['jasmine'],
 
-    // test results reporter to use
-    // possible values: dots || progress || growl
-    reporters: ['progress'],
+    preprocessors: {
+      'src/**/*.js': 'coverage'
+    },
+
+    reporters: ['progress', 'coverage'],
+
+    coverageReporter: {
+      type : 'lcov',
+      dir : 'test/coverage'
+    },
 
     // web server port
     port: 8080,

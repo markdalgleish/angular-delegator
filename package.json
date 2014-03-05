@@ -1,5 +1,6 @@
 {
   "name": "angular-delegator",
+  "title": "Angular Delegator",
   "version": "0.0.8",
   "description": "Delegator Pattern for AngularJS",
   "keywords": [
@@ -13,7 +14,8 @@
     "url": "https://github.com/markdalgleish"
   },
   "scripts": {
-    "test": "bower install -f && grunt"
+    "test": "bower install -f && gulp",
+    "travis": "gulp coveralls"
   },
   "repository": {
     "type": "git",
@@ -21,22 +23,13 @@
   },
   "licenses": [
     {
-      "type": "MIT"
+      "type": "MIT",
+      "url": "http://markdalgleish.mit-license.org"
     }
   ],
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-cli": "~0.1.12",
     "bower": "~1.2.8",
-    "grunt-contrib-jshint": "~0.6.4",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-uglify": "~0.2.4",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-karma": "~0.6.2",
-    "grunt-ngmin": "0.0.3",
-    "grunt-bump": "0.0.11",
-    "matchdep": "~0.1.2",
+    "karma": "~0.10.2",
     "karma-script-launcher": "~0.1.0",
     "karma-chrome-launcher": "~0.1.0",
     "karma-firefox-launcher": "~0.1.0",
@@ -45,6 +38,17 @@
     "karma-requirejs": "~0.1.0",
     "karma-coffee-preprocessor": "~0.1.0",
     "karma-phantomjs-launcher": "~0.1.0",
-    "karma": "~0.10.2"
+    "karma-coverage": "~0.2.0",
+    "gulp": "~3.5.5",
+    "gulp-rename": "~1.1.0",
+    "gulp-karma": "0.0.2",
+    "gulp-clean": "~0.2.4",
+    "gulp-concat": "~2.1.7",
+    "gulp-wrap": "~0.3.0",
+    "gulp-uglify": "~0.2.1",
+    "gulp-jshint": "~1.5.0",
+    "gulp-coveralls": "~0.1.0",
+    "gulp-header": "~1.0.2",
+    "jshint-stylish": "~0.1.5"
   }
 }
