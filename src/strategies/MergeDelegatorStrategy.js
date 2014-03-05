@@ -1,5 +1,5 @@
 angular.module('delegator')
-  .factory('MergeDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('MergeDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     var extend = function(acc, obj) {
       for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -12,4 +12,4 @@ angular.module('delegator')
     return function() {
       return MapDelegatorStrategy.apply(null, arguments).reduce(extend, {});
     };
-  });
+  }]);

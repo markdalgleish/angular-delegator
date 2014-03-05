@@ -1,6 +1,6 @@
 angular.module('delegator')
-  .factory('AllDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('AllDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     return function(fns, args) {
       return !MapDelegatorStrategy(fns, args).some(function(value){ return value === false; });
     };
-  });
+  }]);

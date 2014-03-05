@@ -60,18 +60,18 @@ angular.module('delegator', [])
   }]);
 
 angular.module('delegator')
-  .factory('AllDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('AllDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     return function(fns, args) {
       return !MapDelegatorStrategy(fns, args).some(function(value){ return value === false; });
     };
-  });
+  }]);
 
 angular.module('delegator')
-  .factory('AnyDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('AnyDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     return function(fns, args) {
       return MapDelegatorStrategy(fns, args).some(function(value){ return value === true; });
     };
-  });
+  }]);
 
 angular.module('delegator')
   .factory('MapDelegatorStrategy', function() {
@@ -83,7 +83,7 @@ angular.module('delegator')
   });
 
 angular.module('delegator')
-  .factory('MergeDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('MergeDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     var extend = function(acc, obj) {
       for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -96,20 +96,20 @@ angular.module('delegator')
     return function() {
       return MapDelegatorStrategy.apply(null, arguments).reduce(extend, {});
     };
-  });
+  }]);
 
 angular.module('delegator')
-  .factory('NoneDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('NoneDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     return function(fns, args) {
       return !MapDelegatorStrategy(fns, args).some(function(value){ return value === true; });
     };
-  });
+  }]);
 
 angular.module('delegator')
-  .factory('TruthyDelegatorStrategy', function(MapDelegatorStrategy) {
+  .factory('TruthyDelegatorStrategy', ['MapDelegatorStrategy', function(MapDelegatorStrategy) {
     return function() {
       return MapDelegatorStrategy.apply(null, arguments).filter(function(result) { return result; });
     };
-  });
+  }]);
 
 }());
