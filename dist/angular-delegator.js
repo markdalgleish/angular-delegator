@@ -1,5 +1,5 @@
 /*!
- * angular-delegator v0.0.7
+ * angular-delegator v0.0.8
  * https://github.com/markdalgleish/angular-delegator
  *
  * Copyright 2014, Mark Dalgleish
