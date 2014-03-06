@@ -10,26 +10,36 @@ var gulp = require('gulp'),
   rename = require('gulp-rename'),
   pkg = require('./package.json');
 
-gulp.task('default', ['clean', 'jshint', 'karma', 'build']);
+var paths = {
+  src: 'src/**/*.js',
+  specs: 'test/spec/**/*Spec.js'
+};
 
-gulp.task('clean', function() {
-  return gulp.src(['dist', 'test/coverage'], { read: false })
-    .pipe(clean());
-});
+var filenames = {
+  dev: 'angular-delegator.js',
+  prod: 'angular-delegator.min.js'
+};
+
+gulp.task('default', ['jshint', 'karma', 'build']);
 
 gulp.task('jshint', function() {
-  return gulp.src(['gulpfile.js', 'src/**/*.js', 'specs/**/*.js'])
+  return gulp.src(['gulpfile.js', paths.src, paths.specs.replace('test/', '')])
       .pipe(jshint('.jshintrc'))
       .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('karma', ['clean'], function() {
+gulp.task('clean-coverage', function() {
+  return gulp.src(['test/coverage'], { read: false })
+    .pipe(clean());
+});
+
+gulp.task('karma', ['clean-coverage'], function() {
   return gulp.src([
       'bower_components/angular/angular.js',
       'bower_components/jquery/jquery.js',
       'bower_components/angular-mocks/angular-mocks.js',
-      'src/**/*',
-      'test/spec/**/*Spec.js'])
+      paths.src,
+      paths.specs])
     .pipe(karma({ configFile: 'karma.conf.js' }));
 });
 
@@ -38,9 +48,14 @@ gulp.task('coveralls', ['karma'], function() {
     .pipe(coveralls());
 });
 
-gulp.task('build', ['clean'], function() {
-  return gulp.src('src/**/*.js')
-    .pipe(concat('angular-delegator.js'))
+gulp.task('clean-build', function() {
+  return gulp.src(['dist'], { read: false })
+    .pipe(clean());
+});
+
+gulp.task('build', ['clean-build'], function() {
+  return gulp.src(paths.src)
+    .pipe(concat(filenames.dev))
     .pipe(wrap('(function(){\n\n<%= contents %>\n}());'))
     .pipe(header([
         '/*!',
@@ -52,7 +67,7 @@ gulp.task('build', ['clean'], function() {
         ' */\n\n'
       ].join('\n'), pkg))
     .pipe(gulp.dest('dist'))
-    .pipe(rename('angular-delegator.min.js'))
+    .pipe(rename(filenames.prod))
     .pipe(uglify())
     .pipe(header([
         '/*! <%= title %> v<%= version %> ',
@@ -60,4 +75,8 @@ gulp.task('build', ['clean'], function() {
         'Licensed <%= licenses[0].type %> */\n'
       ].join(''), pkg))
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('watch', function() {
+  gulp.watch([paths.src, paths.specs], ['karma']);
 });
