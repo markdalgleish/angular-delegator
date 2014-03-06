@@ -35,4 +35,20 @@ describe('MergeDelegatorStrategy', function() {
     expect(result).toEqual({ foo: true, bar: true, baz: true });
   });
 
+  it('should ignore properties from prototype objects', function() {
+    var setProto = function(obj) {
+        obj.__proto__ = { ignore: 'me' };
+        return obj;
+      };
+
+    var fns = [
+        jasmine.createSpy('fn1').andReturn(setProto({ foo: true })),
+        jasmine.createSpy('fn2').andReturn(setProto({ bar: true })),
+        jasmine.createSpy('fn3').andReturn(setProto({ baz: true }))
+      ],
+      result = MergeDelegatorStrategy(fns, []);
+
+    expect(result).toEqual({ foo: true, bar: true, baz: true });
+  });
+
 });
