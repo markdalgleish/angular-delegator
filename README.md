@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/markdalgleish/angular-delegator.png?branch=master)](https://travis-ci.org/markdalgleish/angular-delegator) [![Coverage Status](https://coveralls.io/repos/markdalgleish/angular-delegator/badge.png)](https://coveralls.io/r/markdalgleish/angular-delegator)
+[![Build Status](https://secure.travis-ci.org/markdalgleish/angular-delegator.png?branch=master)](https://travis-ci.org/markdalgleish/angular-delegator) [![Coverage Status](https://coveralls.io/repos/markdalgleish/angular-delegator/badge.png)](https://coveralls.io/r/markdalgleish/angular-delegator) [![Code Climate](https://codeclimate.com/github/markdalgleish/angular-delegator.png)](https://codeclimate.com/github/markdalgleish/angular-delegator)
 
 # angular-delegator
 
