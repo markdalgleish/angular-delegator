@@ -19,6 +19,42 @@ If you had a large validation service that checked an account's name, date, addr
 ```js
 angular.module('myApp', ['delegator'])
 
+  .factory('AccountValidator', function(Delegator) {
+
+    return Delegator.create({
+      interface: {
+        'isValid': 'all'
+      },
+      delegates: [
+        'AccountNameValidator',
+        'AccountDateValidator',
+        'AccountAddressValidator',
+        'AccountPaymentValidator'
+      ]
+    });
+
+  });
+```
+
+The `interface` option defines which methods should be handled by the delegator, and which [delegator strategy](#delegator-strategies) to use. If none of the [built-in strategies](#delegator-strategies) are sufficient, you can easily write your own, easily testable [custom delegator strategies](#custom-delegator-strategies).
+
+In this example, your application now has an `AccountValidator` service with a single method called `isValid`:
+
+```js
+angular.module('myApp').controller('SomeCtrl', function($scope, AccountValidator) {
+
+  AccountValidator.isValid($scope.data);
+
+});
+```
+
+## Automatically Generated Delegator Services
+
+Rather than manually creating a delegator service, it can be generated for you dynamically in your module's config step:
+
+```js
+angular.module('myApp', ['delegator'])
+
   .config(function(DelegatorProvider) {
 
     DelegatorProvider.service('AccountValidationDelegator', {
@@ -34,18 +70,6 @@ angular.module('myApp', ['delegator'])
     });
 
   });
-```
-
-The `interface` option defines which methods should be handled by the delegator, and which [delegator strategy](#delegator-strategies) to use. If none of the [built-in strategies](#delegator-strategies) are sufficient, you can easily write your own, easily testable [custom delegator strategies](#custom-delegator-strategies).
-
-In this example, your application now has an `AccountValidationDelegator` service with a single method called `isValid`. You can now use this service just as you would with any regular service you wrote yourself, for example:
-
-```js
-angular.module('myApp').controller('SomeCtrl', function($scope, AccountValidationDelegator) {
-
-  AccountValidationDelegator.isValid($scope.data);
-
-});
 ```
 
 ## Delegator Strategies
