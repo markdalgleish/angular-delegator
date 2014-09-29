@@ -4,13 +4,9 @@
 
 ### Write smaller, cleaner AngularJS services.
 
-With Angular Delegator, it's now easy to write smaller, cleaner, more maintainable services without a heap of tedious glue code.
+Break large services into smaller services with the same interface. Angular-delegator will wire them up for you based on your configuration.
 
-Angular Delegator dynamically creates delegator services based on your configuration. Each delegator service talks to many smaller services that you write yourself, called delegates.
-
-Each delegate service has the same interface as its delegator, allowing you to easily split complicated chunks of business logic into many small, simple steps.
-
-> **Please note:** Angular Delegator is a very young project and the API is likely to change in the near future.
+> **Please note:** Angular Delegator is a very young project. The API is likely to change in the near future.
 
 ### Example
 
